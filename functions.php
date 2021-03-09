@@ -6,6 +6,8 @@ function TestHandler($id, &$arFields) {
 	//$res = $arFields["META:PREV_FIELDS"]["UF_CRM_TASK"][0]; // Сделка привязанная к задаче
 	$res = $arFields["META:PREV_FIELDS"]["DEPENDS_ON"][0]; // Связанная задача
 	// статус продумать
+    // dependicies добавить
+    // получать dependecies в событии, получать задачу и по ней отправлять уведомление исполнителю
 
 	//id ($res === null)
 	//{return;}
