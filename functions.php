@@ -1,29 +1,40 @@
 <?
 
-AddEventHandler('tasks', 'OnTaskUpdate', 'TestHandler');
+AddEventHandler('tasks', 'OnTaskUpdate', 'TaskHandler');
 
-function TestHandler($id, &$arFields) {
-	//$res = $arFields["META:PREV_FIELDS"]["UF_CRM_TASK"][0]; // Сделка привязанная к задаче
-	$res = $arFields["META:PREV_FIELDS"]["DEPENDS_ON"][0]; // Связанная задача
-	// статус продумать
-    // dependicies добавить
-    // получать dependecies в событии, получать задачу и по ней отправлять уведомление исполнителю
+function TaskHandler($id, &$arFields) {
 
-	//id ($res === null)
-	//{return;}
+// Условие запуска функции
+CModule::IncludeModule("tasks");
 
-	$url = 'https://telegram-client.it-solution.ru/pub_message/?chat_id=-541482224&message= ' .'ID:'.$id.' '. $res;
-  	file_get_contents($url);
+$ufCrmTask = $arFields["META:PREV_FIELDS"]["UF_CRM_TASK"][0]; // Сделка привязанная к задаче
+$dependsOn = $arFields["META:PREV_FIELDS"]["DEPENDS_ON"][0]; // Связанная задача
+$status = $arFields["STATUS"]; // Статус
 
-	CModule::IncludeModule("bizproc");
+if ($status != 5 or $dependsOn == null or $ufCrmTask == false) return; 
 
-	$id = 5; // ID Сделки
-	$bizProcId = 28; // ID Шаблона бизнес-процесса
-	$arErrors = array();
+// Параметры в БП  
+$res = CTasks::GetByID($dependsOn, false, $ar);
+$taskTitle = $res->GetNext()['TITLE'];
 
-	CBPDocument::StartWorkflow($bizProcId, array('crm', 'DEAL', 'D_'.$id), 0, $arErrors);
+$res = CTasks::GetByID($dependsOn, false, $ar);
+$responsibleId = $res->GetNext()['RESPONSIBLE_ID'];
+
+// Отладчик
+$url = 'https://telegram-client.it-solution.ru/pub_message/?chat_id=-541482224&message= '.'TEST'; // D_3 29 5
+file_get_contents($url);
+
+// Запуск БП
+CModule::IncludeModule("bizproc");
+
+$id = substr($ufCrmTask, 2); // ID Сделки
+$bizProcId = 28; // ID Шаблона бизнес-процесса
+$errorsTemp = array();
+$params  = array("Parameter1" => $taskTitle,"Parameter2" => $arFields["META:PREV_FIELDS"]["TITLE"],"Parameter3" => $responsibleId);
+
+CModule::IncludeModule("bizproc");
+$instanceId = CBPDocument::StartWorkflow($bizProcId, array('crm', 'CCrmDocumentDeal', 'DEAL_'.$id), $params, $errorsTemp);
 
 }
-
 
 ?>
