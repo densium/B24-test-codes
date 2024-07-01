@@ -21,7 +21,7 @@ $res = CTasks::GetByID($dependsOn, false, $ar);
 $responsibleId = $res->GetNext()['RESPONSIBLE_ID'];
 
 // Отладчик
-	$url = 'https://telegram-client.it-solution.ru/pub_message/?chat_id=-541482224&message=TEST: '.$ufCrmTask.' '.$dependsOn.' '.$status;
+	$url = 'https://telegram-client.UUUUUUU.ru/pub_message/?chat_id=UUUUUUU&message=TEST: '.$ufCrmTask.' '.$dependsOn.' '.$status;
 file_get_contents($url);
 
 // Запуск БП
